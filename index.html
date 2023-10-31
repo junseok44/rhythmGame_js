@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Sketch</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      .p5Canvas {
+        /* border: 1px solid black; */
+      }
+      .buttonContainer {
+        display: flex;
+        flex-direction: column;
+        /* position: absolute; */
+        /* top: 10px; */
+        /* right: 10px; */
+        z-index: 1;
+      }
+      button {
+        padding: 20px;
+        font-size: 20px;
+      }
+      .container {
+        display: flex;
+      }
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0.2;
+        touch-action: none;
+      }
+    </style>
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="myCanvas"></div>
+      <div id="player"></div>
+      <div class="buttonContainer">
+        <button class="recordBtn">녹음하기</button>
+        <button class="playBtn">게임 시작하기</button>
+      </div>
+    </div>
+
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement("script");
+
+      tag.src = "https://www.youtube.com/iframe_api";
+
+      var firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var YTplayer;
+      function onYouTubeIframeAPIReady() {
+        YTplayer = new YT.Player("player", {
+          width: "1000",
+          height: "1000",
+          videoId: "Km71Rr9K-Bw",
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
+        });
+      }
+
+      function startVideo() {
+        YTplayer.playVideo();
+      }
+
+      function onPlayerReady(event) {
+        // event.target.playVideo();
+      }
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          done = true;
+        }
+      }
+      function stopVideo() {
+        YTplayer.stopVideo();
+      }
+    </script>
+
+    <script src="sketch.js"></script>
+  </body>
+</html>

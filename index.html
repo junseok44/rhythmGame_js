@@ -7,9 +7,6 @@
     <title>Sketch</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <style>
-      .p5Canvas {
-        /* border: 1px solid black; */
-      }
       .buttonContainer {
         display: flex;
         flex-direction: column;
@@ -32,6 +29,7 @@
         left: 0;
         opacity: 0.2;
         touch-action: none;
+        pointer-events: none;
       }
     </style>
     <script src="libraries/p5.min.js"></script>
@@ -63,6 +61,10 @@
           width: "1000",
           height: "1000",
           videoId: "Km71Rr9K-Bw",
+          playerVars: {
+            controls: 0,
+            disablekb: 1,
+          },
           events: {
             onReady: onPlayerReady,
             onStateChange: onPlayerStateChange,
@@ -76,6 +78,11 @@
 
       function onPlayerReady(event) {
         // event.target.playVideo();
+        document.querySelector("iframe").addEventListener("click", (e) => {
+          console.log("clicked");
+          e.preventDefault();
+          return;
+        });
       }
       var done = false;
       function onPlayerStateChange(event) {

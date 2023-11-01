@@ -45,56 +45,18 @@
         <button class="playBtn">게임 시작하기</button>
       </div>
     </div>
-
-    <script>
-      // 2. This code loads the IFrame Player API code asynchronously.
-      var tag = document.createElement("script");
-
-      tag.src = "https://www.youtube.com/iframe_api";
-
-      var firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      var YTplayer;
-      function onYouTubeIframeAPIReady() {
-        YTplayer = new YT.Player("player", {
-          width: "1000",
-          height: "1000",
-          videoId: "Km71Rr9K-Bw",
-          playerVars: {
-            controls: 0,
-            disablekb: 1,
-          },
-          events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange,
-          },
-        });
-      }
-
-      function startVideo() {
-        YTplayer.playVideo();
-      }
-
-      function onPlayerReady(event) {
-        // event.target.playVideo();
-        document.querySelector("iframe").addEventListener("click", (e) => {
-          console.log("clicked");
-          e.preventDefault();
-          return;
-        });
-      }
-      var done = false;
-      function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.PLAYING && !done) {
-          done = true;
-        }
-      }
-      function stopVideo() {
-        YTplayer.stopVideo();
-      }
-    </script>
-
+    <script src="objects/BasicNote.js"></script>
+    <script src="objects/Note.js"></script>
+    <script src="system/GameManager.js"></script>
+    <script src="system/LoadYTPlayer.js"></script>
+    <script src="system/NotePlayer.js"></script>
+    <script src="system/Recorder.js"></script>
+    <script src="system/System.js"></script>
+    <script src="ui/Button.js"></script>
+    <script src="ui/UI.js"></script>
     <script src="sketch.js"></script>
   </body>
 </html>
+
+<!-- mongodb에 저장할 것 1. youtube video id 2. notes = {time: 0, note: 0} 배열 3.
+song id -->

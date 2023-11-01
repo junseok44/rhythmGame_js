@@ -1,0 +1,3 @@
+class LongNote {
+  constructor() {}
+}

@@ -4,9 +4,11 @@ recordBtn.addEventListener("click", () => {
     System.changeMode(System.modeMap.record);
   } else if (System.mode == System.modeMap.record) {
     System.changeMode(System.modeMap.waiting);
+    recorder.saveLocalStorage();
   }
 });
 
+// waiting -> play -> pause -> play
 const playBtn = document.querySelector(".playBtn");
 playBtn.addEventListener("click", () => {
   if (System.mode == System.modeMap.waiting) {
@@ -14,12 +16,20 @@ playBtn.addEventListener("click", () => {
       recorder.noteData = JSON.parse(localStorage.getItem("noteData"));
     }
     notePlayer.setNotes(recorder.noteData);
-
+    // notePlayer.setNotes(songData[0].noteData);
     System.changeMode(System.modeMap.play);
   } else if (System.mode == System.modeMap.play) {
     System.changeMode(System.modeMap.pause);
   } else if (System.mode == System.modeMap.pause) {
     System.changeMode(System.modeMap.play);
+  }
+});
+
+// play -> waiting
+const replayBtn = document.querySelector(".replayBtn");
+replayBtn.addEventListener("click", () => {
+  if (System.mode == System.modeMap.pause) {
+    System.replay();
   }
 });
 
@@ -45,7 +55,7 @@ function setup() {
 
 function draw() {
   background(255);
-
+  System.checkKeyReleased();
   ui.displayUI();
 
   switch (System.mode) {
@@ -65,10 +75,22 @@ function draw() {
       break;
     case System.modeMap.record:
       recorder.record();
+      notePlayer.playRecordNotes();
       break;
     case System.modeMap.pause:
       ui.displayPauseUI();
       break;
+  }
+}
+
+function keyPressed() {
+  if (keyCode == 32 && System.mode == System.modeMap.play) {
+    System.changeMode(System.modeMap.pause);
+  } else if (keyCode == 32 && System.mode == System.modeMap.pause) {
+    System.changeMode(System.modeMap.play);
+  }
+  if (keyCode == 82 && System.mode == System.modeMap.pause) {
+    System.replay();
   }
 }
 

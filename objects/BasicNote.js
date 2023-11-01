@@ -1,5 +1,5 @@
 class BasicNote {
-  constructor(time, code, gameManager) {
+  constructor(time, code, gameManager, notes) {
     switch (code) {
       case System.keyCodeMap.q:
         this.x = System.controllerPosition.q.x;
@@ -15,7 +15,7 @@ class BasicNote {
         break;
     }
     this.gameManager = gameManager;
-
+    this.notes = notes;
     this.width = 80;
     this.height = 80;
     this.code = code;

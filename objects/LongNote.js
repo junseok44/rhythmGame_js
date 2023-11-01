@@ -1,3 +1,3 @@
-class LongNote {
+class LongNote extends BasicNote {
   constructor() {}
 }

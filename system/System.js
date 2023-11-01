@@ -12,7 +12,6 @@ class System {
     switch (mode) {
       case System.modeMap.waiting:
         System.mode = System.modeMap.waiting;
-        // 이것도 하드코딩하지말자..
         recordBtn.innerText = "녹음하기";
         playBtn.innerText = "재생하기";
         recorder.stopRecording();
@@ -32,7 +31,6 @@ class System {
         playBtn.innerText = "재생하기";
         notePlayer.pause();
         YTplayer.pauseVideo();
-
         break;
     }
   }
@@ -50,4 +48,40 @@ class System {
     e: 69,
     r: 82,
   };
+
+  static isKeyPressed = {
+    [System.keyCodeMap.q]: false,
+    [System.keyCodeMap.w]: false,
+    [System.keyCodeMap.e]: false,
+    [System.keyCodeMap.r]: false,
+  };
+
+  static checkKeyReleased() {
+    for (const key in this.isKeyPressed) {
+      if (this.isKeyPressed[key]) {
+        if (!keyIsDown(key)) {
+          this.isKeyPressed[key] = false;
+        }
+      }
+    }
+  }
+
+  static checkKeyPressed() {
+    for (const key in this.isKeyPressed) {
+      if (!this.isKeyPressed[key]) {
+        if (keyIsDown(key)) {
+          this.isKeyPressed[key] = true;
+        }
+      }
+    }
+  }
+
+  static pause() {}
+
+  static replay() {
+    YTplayer.stopVideo(0);
+    gameManager.reset();
+    notePlayer.setNotes(recorder.noteData);
+    System.changeMode(System.modeMap.play);
+  }
 }

@@ -1,6 +1,7 @@
 class NotePlayer {
   constructor(gameManager) {
     this.notes = [];
+    this.recordNotes = [];
     this.gameManager = gameManager;
     this.isPlaying = false;
   }
@@ -13,8 +14,19 @@ class NotePlayer {
     this.notes = [];
     for (let i = 0; i < noteData.length; i++) {
       this.notes.push(
-        new Note(noteData[i].time, noteData[i].key, this.gameManager)
+        new Note(
+          noteData[i].time,
+          noteData[i].key,
+          this.gameManager,
+          this.notes
+        )
       );
+    }
+  }
+
+  playRecordNotes() {
+    for (let i = 0; i < this.recordNotes.length; i++) {
+      this.recordNotes[i].draw();
     }
   }
 

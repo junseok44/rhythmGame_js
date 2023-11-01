@@ -10,15 +10,15 @@ class GameManager {
       this.displayText = "Miss...";
       this.combo = 0;
     } else {
-      if (distance <= 50) {
+      if (distance <= 30) {
         this.combo++;
         this.score += 100;
         this.displayText = "완벽해!!";
-      } else if (distance <= 100) {
+      } else if (distance <= 60) {
         this.combo++;
         this.score += 50;
         this.displayText = "오우 굿!";
-      } else if (distance <= 150) {
+      } else if (distance <= 130) {
         this.combo++;
         this.score += 10;
         this.displayText = "굿";
@@ -31,5 +31,11 @@ class GameManager {
 
   setLevel(stage, level) {
     this.levelMap.set(stage, level);
+  }
+
+  reset() {
+    this.score = 0;
+    this.combo = 0;
+    this.displayText = "";
   }
 }

@@ -54,6 +54,8 @@ class UI {
     textSize(100);
     fill(0);
     text("Paused", width / 2, height / 2);
+    textSize(50);
+    text("재시작 : r키", width / 2, height / 2 + 100);
   }
 
   displayUI() {

@@ -1,9 +1,30 @@
+// mode change에 관한 것들도 클래스 메서드로 만들어야 하나?
+// 전역변수를 클래스 안에서 수정해줘도 되나?
+
+// 녹음하기 -> 녹음 완료시 waiting 모드로 전환
 const recordBtn = document.querySelector(".recordBtn");
-recordBtn.addEventListener("click", toggleRecord);
+recordBtn.addEventListener("click", () => {
+  if (System.mode == System.modeMap.waiting) {
+    System.changeMode(System.modeMap.record);
+  } else if (System.mode == System.modeMap.record) {
+    System.changeMode(System.modeMap.waiting);
+  }
+});
+
 const playBtn = document.querySelector(".playBtn");
 playBtn.addEventListener("click", () => {
-  System.mode = "play";
-  YTplayer.playVideo();
+  if (System.mode == System.modeMap.waiting) {
+    if (localStorage.getItem("noteData")) {
+      recorder.noteData = JSON.parse(localStorage.getItem("noteData"));
+    }
+    notePlayer.setNotes(recorder.noteData);
+
+    System.changeMode(System.modeMap.play);
+  } else if (System.mode == System.modeMap.play) {
+    System.changeMode(System.modeMap.pause);
+  } else if (System.mode == System.modeMap.pause) {
+    System.changeMode(System.modeMap.play);
+  }
 });
 
 let gameManager;
@@ -173,6 +194,41 @@ class LongNote {
 class System {
   static frameRate = 60;
   static mode = "waiting";
+  static modeMap = {
+    waiting: "waiting",
+    record: "record",
+    play: "play",
+    pause: "pause",
+  };
+
+  static changeMode(mode) {
+    switch (mode) {
+      case System.modeMap.waiting:
+        System.mode = System.modeMap.waiting;
+        // 이것도 하드코딩하지말자..
+        recordBtn.innerText = "녹음하기";
+        playBtn.innerText = "재생하기";
+        recorder.stopRecording();
+        break;
+      case System.modeMap.record:
+        System.mode = System.modeMap.record;
+        recordBtn.innerText = "녹음중단";
+        recorder.startRecord();
+        break;
+      case System.modeMap.play:
+        System.mode = System.modeMap.play;
+        playBtn.innerText = "일시중지";
+        YTplayer.playVideo();
+        break;
+      case System.modeMap.pause:
+        System.mode = System.modeMap.pause;
+        playBtn.innerText = "재생하기";
+        notePlayer.pause();
+        YTplayer.pauseVideo();
+
+        break;
+    }
+  }
 
   static controllerPosition = {
     q: { x: 350, y: 950 },
@@ -189,69 +245,22 @@ class System {
   };
 }
 
-function toggleRecord() {
-  if (System.mode == "waiting") {
-    System.mode = "record";
-    recordBtn.innerText = "녹음중단";
-    recorder.startRecord();
-  } else if (System.mode == "record") {
-    System.mode = "waiting";
-    recorder.stopRecording();
-    recordBtn.innerText = "녹음하기";
-  }
-}
-
-function setup() {
-  let canvas = createCanvas(1000, 1000);
-  stroke(0);
-  noFill();
-  rectMode(CENTER);
-  frameRate(System.frameRate);
-  canvas.parent("myCanvas");
-
-  gameManager = new GameManager();
-  gameManager.setLevel(1, 20);
-  notePlayer = new NotePlayer(gameManager);
-  recorder = new Recorder(notePlayer.setNotes.bind(notePlayer));
-  ui = new UI(gameManager, notePlayer);
-
-  // notes = [
-  //   new Note(1.24252, System.keyCodeMap.q, gameManager),
-  //   new Note(1.9124, keycodeMap.w, gameManager),
-  //   new Note(2.1231, keycodeMap.e, gameManager),
-  //   new Note(2.4421, keycodeMap.q, gameManager),
-  //   new Note(2.9124, keycodeMap.w, gameManager),
-  //   new Note(3.1231, keycodeMap.e, gameManager),
-  //   new Note(3.4421, keycodeMap.q, gameManager),
-  //   new Note(3.9124, keycodeMap.w, gameManager),
-  //   new Note(4.1231, keycodeMap.e, gameManager),
-  //   new Note(4.4421, keycodeMap.q, gameManager),
-  //   new Note(4.9124, keycodeMap.w, gameManager),
-  //   new Note(5.1231, keycodeMap.r, gameManager),
-  //   new Note(5.4421, keycodeMap.r, gameManager),
-  //   new Note(5.9124, keycodeMap.r, gameManager),
-  //   new Note(6.1231, keycodeMap.w, gameManager),
-  //   new Note(6.4421, keycodeMap.q, gameManager),
-  //   new Note(6.9124, keycodeMap.e, gameManager),
-  //   new Note(7.1231, keycodeMap.w, gameManager),
-  //   new Note(7.4421, keycodeMap.q, gameManager),
-  //   new Note(7.9124, keycodeMap.e, gameManager),
-  //   new Note(8.1231, keycodeMap.w, gameManager),
-  // ];
-}
-
 class Recorder {
-  constructor(onEndRecording) {
+  constructor(displayTimeLapse) {
     this.recordStartDate = new Date();
     this.noteData = [];
     this.isRecording = true;
+    this.displayTimeLapse = displayTimeLapse;
     this.isKeyPressed = {
       [System.keyCodeMap.q]: false,
       [System.keyCodeMap.w]: false,
       [System.keyCodeMap.e]: false,
       [System.keyCodeMap.r]: false,
     };
-    this.onEndRecording = onEndRecording;
+  }
+
+  saveLocalStorage() {
+    localStorage.setItem("noteData", JSON.stringify(this.noteData));
   }
 
   checkKeyReleased() {
@@ -264,17 +273,6 @@ class Recorder {
     }
   }
 
-  showTime(timeLapse) {
-    textSize(30);
-    fill(0);
-
-    text(
-      `${timeLapse.getMinutes()}분: ${timeLapse.getSeconds()}초 : ${timeLapse.getMilliseconds()}`,
-      100,
-      100
-    );
-  }
-
   startRecord() {
     this.isRecording = true;
     this.recordStartDate = new Date();
@@ -285,8 +283,8 @@ class Recorder {
   record() {
     if (!this.isRecording) return;
     let timeLapse = new Date(new Date() - this.recordStartDate);
-    this.showTime(timeLapse);
     this.checkKeyReleased();
+    this.displayTimeLapse(timeLapse);
     if (!this.isKeyPressed[keyCode] && keyIsDown(keyCode)) {
       this.isKeyPressed[keyCode] = true;
       this.noteData.push({
@@ -298,7 +296,7 @@ class Recorder {
 
   stopRecording() {
     this.isRecording = false;
-    this.onEndRecording(this.noteData);
+    this.saveLocalStorage();
     YTplayer.stopVideo();
   }
 }
@@ -307,6 +305,7 @@ class NotePlayer {
   constructor(gameManager) {
     this.notes = [];
     this.gameManager = gameManager;
+    this.isPlaying = false;
   }
 
   get isPlayerEnd() {
@@ -321,10 +320,15 @@ class NotePlayer {
       );
     }
   }
+
   play() {
     for (let i = 0; i < this.notes.length; i++) {
       this.notes[i].draw();
     }
+  }
+
+  pause() {
+    this.isPlaying = false;
   }
 }
 
@@ -332,6 +336,7 @@ class UI {
   constructor(gameManager, player) {
     this.gameManager = gameManager;
     this.player = player;
+    this.isShowingResult = false;
     this.buttons = [
       new Button(
         81,
@@ -368,6 +373,23 @@ class UI {
     ];
   }
 
+  static displayTimeLapse(timeLapse) {
+    textSize(30);
+    fill(0);
+
+    text(
+      `${timeLapse.getMinutes()}분: ${timeLapse.getSeconds()}초 : ${timeLapse.getMilliseconds()}`,
+      100,
+      100
+    );
+  }
+
+  displayPauseUI() {
+    textSize(100);
+    fill(0);
+    text("Paused", width / 2, height / 2);
+  }
+
   displayUI() {
     for (let i = 0; i < this.buttons.length; i++) {
       this.buttons[i].draw();
@@ -394,25 +416,41 @@ class UI {
     }
   }
 
+  displayResult() {
+    textSize(100);
+    fill(0);
+    text("잘 했어요!!", width / 2, height / 2);
+    text("당신의 점수: " + this.gameManager.score, width / 2, height / 2 + 100);
+  }
+
   displayPlayUI() {
     this.displayScore();
-    if (this.player.isPlayerEnd && !this.resultTimer) {
-      this.resultTimer = setTimeout(() => {
-        this.result = true;
-      }, 1500);
-    } else if (this.result) {
-      textSize(100);
-      fill(0);
-      text("잘 했어요!!", width / 2, height / 2);
-      text(
-        "당신의 점수: " + this.gameManager.score,
-        width / 2,
-        height / 2 + 100
-      );
-    } else {
-      this.displayCombo();
-    }
+    this.displayCombo();
+    // if (this.player.isPlayerEnd && !this.resultTimer) {
+    //   this.resultTimer = setTimeout(() => {
+    //     this.result = true;
+    //   }, 1500);
+    // } else if (this.result) {
+    //   this.displayResult();
+    // } else {
+    //   this.displayCombo();
+    // }
   }
+}
+
+function setup() {
+  let canvas = createCanvas(1000, 1000);
+  stroke(0);
+  noFill();
+  rectMode(CENTER);
+  frameRate(System.frameRate);
+  canvas.parent("myCanvas");
+
+  gameManager = new GameManager();
+  gameManager.setLevel(1, 20);
+  notePlayer = new NotePlayer(gameManager);
+  ui = new UI(gameManager, notePlayer);
+  recorder = new Recorder(UI.displayTimeLapse);
 }
 
 function draw() {
@@ -421,14 +459,25 @@ function draw() {
   ui.displayUI();
 
   switch (System.mode) {
-    case "play":
-      ui.displayPlayUI();
+    case System.modeMap.play:
       notePlayer.play();
+      ui.displayPlayUI();
+      // if (notePlayer.isPlayerEnd && !ui.isShowingResult) {
+      //   setTimeout(() => {
+      //     ui.displayResult();
+      //   }, 3000);
+      //   ui.isShowingResult = true;
+      // } else {
+      //   ui.displayPlayUI();
+      // }
       break;
-    case "waiting":
+    case System.modeMap.waiting:
       break;
-    case "record":
+    case System.modeMap.record:
       recorder.record();
+      break;
+    case System.modeMap.pause:
+      ui.displayPauseUI();
       break;
   }
 }

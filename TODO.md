@@ -18,3 +18,8 @@
       그 다음 노트까지 같이 입력한것으로 인식이 되어버리기 때문에.
 
       filter -> 내 row의 isHit되지않은것들중에서 y값이 가장 큰 경우에만 detect하도록.
+
+게임의 모드는
+
+1. waiting -> 녹음하기
+2. waiting -> play -> pause

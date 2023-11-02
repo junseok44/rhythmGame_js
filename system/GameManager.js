@@ -13,15 +13,15 @@ class GameManager {
       if (distance <= 30) {
         this.combo++;
         this.score += 100;
-        this.displayText = "완벽해!!";
+        this.displayText = "Perfect!!";
       } else if (distance <= 60) {
         this.combo++;
         this.score += 50;
-        this.displayText = "오우 굿!";
+        this.displayText = "very good!";
       } else if (distance <= 130) {
         this.combo++;
         this.score += 10;
-        this.displayText = "굿";
+        this.displayText = "nice";
       } else {
         this.displayText = "Bad...";
         this.combo = 0;

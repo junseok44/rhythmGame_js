@@ -1,36 +1,44 @@
+const displayResult_delayed = Utils.delayDisplay(() => {
+  ui.displayResult();
+}, 1000);
+
+const backToWaiting_delayed = Utils.callOneTime(() => {
+  YTplayer.stopVideo();
+  System.changeMode(System.MODE.WAITING);
+}, 3000);
+
 class System {
   static frameRate = 60;
   static mode = "waiting";
-  static modeMap = {
-    waiting: "waiting",
-    record: "record",
-    play: "play",
-    pause: "pause",
+  static MODE = {
+    INTRO: "game_intro",
+    SELECT: "select_song",
+    WAITING: "waiting",
+    RECORD: "record",
+    PLAY: "play",
+    PAUSE: "pause",
   };
+  static currentSong;
 
   static changeMode(mode) {
     switch (mode) {
-      case System.modeMap.waiting:
-        System.mode = System.modeMap.waiting;
-        recordBtn.innerText = "녹음하기";
-        playBtn.innerText = "재생하기";
-        recorder.stopRecording();
+      case System.MODE.INTRO:
+        System.mode = System.MODE.INTRO;
         break;
-      case System.modeMap.record:
-        System.mode = System.modeMap.record;
-        recordBtn.innerText = "녹음중단";
-        recorder.startRecord();
+      case System.MODE.SELECT:
+        System.mode = System.MODE.SELECT;
         break;
-      case System.modeMap.play:
-        System.mode = System.modeMap.play;
-        playBtn.innerText = "일시중지";
-        YTplayer.playVideo();
+      case System.MODE.WAITING:
+        System.mode = System.MODE.WAITING;
         break;
-      case System.modeMap.pause:
-        System.mode = System.modeMap.pause;
-        playBtn.innerText = "재생하기";
-        notePlayer.pause();
-        YTplayer.pauseVideo();
+      case System.MODE.RECORD:
+        System.mode = System.MODE.RECORD;
+        break;
+      case System.MODE.PLAY:
+        System.mode = System.MODE.PLAY;
+        break;
+      case System.MODE.PAUSE:
+        System.mode = System.MODE.PAUSE;
         break;
     }
   }
@@ -76,12 +84,57 @@ class System {
     }
   }
 
-  static pause() {}
+  static startRecording() {
+    if (!System.currentSong) return;
+    System.changeMode(System.MODE.RECORD);
+    recorder.startRecord();
+    YTplayer.playVideo();
+  }
+
+  static stopRecording() {
+    YTplayer.stopVideo();
+    System.changeMode(System.MODE.WAITING);
+    recorder.saveLocalStorage();
+  }
+
+  static resume() {
+    System.changeMode(System.MODE.PLAY);
+  }
+
+  static loadData(id) {
+    let song = songData.filter((song) => song.id === id);
+    if (song.length == 0) return;
+    System.currentSong = song[0];
+    notePlayer.setNotes(System.currentSong.noteData);
+    videoId = System.currentSong.movieID;
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  }
+
+  static startPlaying() {
+    // if (localStorage.getItem("noteData")) {
+    //   recorder.noteData = JSON.parse(localStorage.getItem("noteData"));
+    // }
+    // notePlayer.setNotes(recorder.noteData);
+
+    // 예를 들어 mongoDB로부터 데이터를 받았어. 그럼 어떻게 하는데?
+    System.loadData(System.currentSong.id);
+    gameManager.reset();
+    System.changeMode(System.MODE.PLAY);
+  }
+
+  static gameEnd() {
+    gameManager.reset();
+    displayResult_delayed();
+    backToWaiting_delayed();
+  }
+
+  static pause() {
+    System.changeMode(System.MODE.PAUSE);
+  }
 
   static replay() {
     YTplayer.stopVideo(0);
     gameManager.reset();
-    notePlayer.setNotes(recorder.noteData);
-    System.changeMode(System.modeMap.play);
+    System.startPlaying();
   }
 }

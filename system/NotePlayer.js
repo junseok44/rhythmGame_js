@@ -1,3 +1,5 @@
+// 이 친구는 noteData를 인풋으로 받아서, 걔를 화면에 뿌려주는 역할만 함.
+
 class NotePlayer {
   constructor(gameManager) {
     this.notes = [];
@@ -8,6 +10,10 @@ class NotePlayer {
 
   get isPlayerEnd() {
     return this.notes.length !== 0 && this.notes.every((note) => note.isHit);
+  }
+
+  reset() {
+    this.notes = [];
   }
 
   setNotes(noteData) {

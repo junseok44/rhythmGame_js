@@ -41,21 +41,41 @@
       <div id="myCanvas"></div>
       <div id="player"></div>
       <div class="buttonContainer">
-        <button class="recordBtn">녹음하기</button>
-        <button class="playBtn">게임 시작하기</button>
-        <button class="replayBtn">다시 시작</button>
+        <button onkeydown="preventSpacebarClick(event);" class="recordBtn">
+          녹음하기
+        </button>
+        <button onkeydown="preventSpacebarClick(event);" class="playBtn">
+          게임 시작하기
+        </button>
+        <button onkeydown="preventSpacebarClick(event);" class="replayBtn">
+          다시 시작
+        </button>
       </div>
     </div>
+    <script>
+      function preventSpacebarClick(event) {
+        if (event.key === " " || event.keyCode === 32) {
+          if (event.target === document.activeElement) {
+            event.preventDefault();
+          }
+        }
+      }
+    </script>
     <script src="objects/BasicNote.js"></script>
     <script src="objects/RecordNote.js"></script>
     <script src="objects/Note.js"></script>
+
     <script src="system/GameManager.js"></script>
     <script src="system/LoadYTPlayer.js"></script>
     <script src="system/NotePlayer.js"></script>
     <script src="system/Recorder.js"></script>
+    <script src="system/Utils.js"></script>
     <script src="system/System.js"></script>
+
     <script src="ui/Button.js"></script>
+    <script src="ui/Controller.js"></script>
     <script src="ui/UI.js"></script>
+
     <script src="sketch.js"></script>
   </body>
 </html>

@@ -1,10 +1,10 @@
 class UI {
-  constructor(gameManager, player) {
+  constructor(gameManager, player, recorder) {
     this.gameManager = gameManager;
     this.player = player;
-    this.isShowingResult = false;
+    this.recorder = recorder;
     this.buttons = [
-      new Button(
+      new Controller(
         81,
         System.controllerPosition.q.x,
         System.controllerPosition.q.y,
@@ -12,7 +12,7 @@ class UI {
         100,
         "Q"
       ),
-      new Button(
+      new Controller(
         87,
         System.controllerPosition.w.x,
         System.controllerPosition.w.y,
@@ -20,7 +20,7 @@ class UI {
         100,
         "W"
       ),
-      new Button(
+      new Controller(
         69,
         System.controllerPosition.e.x,
         System.controllerPosition.e.y,
@@ -28,7 +28,7 @@ class UI {
         100,
         "E"
       ),
-      new Button(
+      new Controller(
         82,
         System.controllerPosition.r.x,
         System.controllerPosition.r.y,
@@ -37,14 +37,25 @@ class UI {
         "R"
       ),
     ];
+    this.songButtons = songData.map(
+      (song) =>
+        new Button(
+          width / 2,
+          300 + song.id * 50,
+          `${song.artist} - ${song.title}`,
+          () => {
+            System.loadData(song.id);
+            System.changeMode(System.MODE.WAITING);
+          }
+        )
+    );
   }
 
-  static displayTimeLapse(timeLapse) {
+  displayRecordUI() {
     textSize(30);
     fill(0);
-
     text(
-      `${timeLapse.getMinutes()}분: ${timeLapse.getSeconds()}초 : ${timeLapse.getMilliseconds()}`,
+      `${this.recorder.timeLapse.getMinutes()}분: ${this.recorder.timeLapse.getSeconds()}초 : ${this.recorder.timeLapse.getMilliseconds()}`,
       100,
       100
     );
@@ -54,15 +65,12 @@ class UI {
     textSize(100);
     fill(0);
     text("Paused", width / 2, height / 2);
-    textSize(50);
-    text("재시작 : r키", width / 2, height / 2 + 100);
+    textSize(30);
+    text("재개 : 스페이스바", width / 2, height / 2 + 100);
+    text("재시작 : r키", width / 2, height / 2 + 150);
   }
 
-  displayUI() {
-    for (let i = 0; i < this.buttons.length; i++) {
-      this.buttons[i].draw();
-    }
-  }
+  displayUI() {}
 
   displayScore() {
     push();
@@ -91,17 +99,31 @@ class UI {
     text("당신의 점수: " + this.gameManager.score, width / 2, height / 2 + 100);
   }
 
+  displaySelectUI() {
+    push();
+    textSize(30);
+    fill(0);
+    text("곡 목록", width / 2, 100);
+
+    for (const btn of this.songButtons) {
+      btn.draw();
+    }
+    pop();
+  }
+
+  displayWaitingUI() {
+    push();
+    fill(0);
+    textSize(50);
+    text("준비가 되었다면 A키를 눌러주세요", width / 2, height / 2);
+    pop();
+  }
+
   displayPlayUI() {
     this.displayScore();
     this.displayCombo();
-    // if (this.player.isPlayerEnd && !this.resultTimer) {
-    //   this.resultTimer = setTimeout(() => {
-    //     this.result = true;
-    //   }, 1500);
-    // } else if (this.result) {
-    //   this.displayResult();
-    // } else {
-    //   this.displayCombo();
-    // }
+    for (let i = 0; i < this.buttons.length; i++) {
+      this.buttons[i].draw();
+    }
   }
 }

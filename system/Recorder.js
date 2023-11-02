@@ -1,34 +1,23 @@
 class Recorder {
-  constructor(displayTimeLapse) {
+  constructor() {
     this.recordStartDate = new Date();
     this.noteData = [];
     this.isRecording = true;
-    this.displayTimeLapse = displayTimeLapse;
+    this.timeLapse = new Date();
   }
 
   saveLocalStorage() {
     localStorage.setItem("noteData", JSON.stringify(this.noteData));
   }
 
-  // checkKeyReleased() {
-  //   for (const key in this.isKeyPressed) {
-  //     if (this.isKeyPressed[key]) {
-  //       if (!keyIsDown(key)) {
-  //         this.isKeyPressed[key] = false;
-  //       }
-  //     }
-  //   }
-  // }
-
   startRecord() {
     this.recordStartDate = new Date();
     this.noteData = [];
-    YTplayer.playVideo();
   }
 
   record() {
     let timeLapse = new Date(new Date() - this.recordStartDate);
-    this.displayTimeLapse(timeLapse);
+    this.timeLapse = timeLapse;
     if (!System.isKeyPressed[keyCode] && keyIsDown(keyCode)) {
       System.isKeyPressed[keyCode] = true;
       this.noteData.push({
@@ -43,9 +32,5 @@ class Recorder {
         )
       );
     }
-  }
-
-  stopRecording() {
-    YTplayer.stopVideo();
   }
 }

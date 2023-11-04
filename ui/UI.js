@@ -1,9 +1,10 @@
 class UI {
-  constructor(gameManager, player, recorder) {
+  constructor(gameManager, player, recorder, songData) {
     this.gameManager = gameManager;
     this.player = player;
     this.recorder = recorder;
-    this.buttons = [
+    this.songData = songData;
+    this.controller = [
       new Controller(
         81,
         System.controllerPosition.q.x,
@@ -37,15 +38,18 @@ class UI {
         "R"
       ),
     ];
-    this.songButtons = songData.map(
-      (song) =>
+    this.songButtons = this.songData.map(
+      (song, index) =>
         new Button(
           width / 2,
-          300 + song.id * 50,
+          300 + index * 50,
           `${song.artist} - ${song.title}`,
           () => {
-            System.loadData(song.id);
-            System.changeMode(System.MODE.WAITING);
+            system.setCurrentSong(song.id);
+            system.loadVideo();
+            // ytPlayer.startVideo();
+            // ytPlayer.stopVideo(0);
+            system.changeMode(System.MODE.WAITING);
           }
         )
     );
@@ -103,7 +107,7 @@ class UI {
     push();
     textSize(30);
     fill(0);
-    text("곡 목록", width / 2, 100);
+    text("선곡표", width / 2, 100);
 
     for (const btn of this.songButtons) {
       btn.draw();
@@ -122,8 +126,8 @@ class UI {
   displayPlayUI() {
     this.displayScore();
     this.displayCombo();
-    for (let i = 0; i < this.buttons.length; i++) {
-      this.buttons[i].draw();
+    for (let i = 0; i < this.controller.length; i++) {
+      this.controller[i].draw();
     }
   }
 }

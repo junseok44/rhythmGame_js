@@ -14,14 +14,17 @@ class GameManager {
         this.combo++;
         this.score += 100;
         this.displayText = "Perfect!!";
+        hitSound.play();
       } else if (distance <= 60) {
         this.combo++;
         this.score += 50;
         this.displayText = "very good!";
+        hitSound.play();
       } else if (distance <= 130) {
         this.combo++;
         this.score += 10;
         this.displayText = "nice";
+        hitSound.play();
       } else {
         this.displayText = "Bad...";
         this.combo = 0;

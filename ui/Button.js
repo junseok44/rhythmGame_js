@@ -10,9 +10,8 @@ class Button {
     this.color = 0;
   }
 
-  get buttonPressed() {
+  get isHover() {
     return (
-      mouseIsPressed &&
       mouseX > this.x - this.width / 2 &&
       mouseX < this.x + this.width / 2 &&
       mouseY < this.y + this.height / 2 &&
@@ -21,16 +20,24 @@ class Button {
   }
 
   draw() {
-    if (!this.isClicked && this.buttonPressed) {
+    if (this.isHover) {
+      this.color = "rgb(255,0,0)";
+    } else {
+      this.color = 0;
+    }
+
+    if (!this.isClicked && this.isHover && mouseIsPressed) {
       this.isClicked = true;
       this.onClick();
     }
+
     push();
     rectMode(CENTER);
     textAlign(CENTER);
     textSize(30);
-    text(`${this.text}`, this.x, this.y);
     fill(this.color);
+    cursor(HAND);
+    text(`${this.text}`, this.x, this.y);
     pop();
   }
 }

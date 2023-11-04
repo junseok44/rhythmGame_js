@@ -1,41 +1,54 @@
 const recordBtn = document.querySelector(".recordBtn");
 recordBtn.addEventListener("click", () => {
-  if (System.mode == System.MODE.WAITING) {
-    System.startRecording();
-  } else if (System.mode == System.MODE.RECORD) {
-    System.stopRecording();
+  if (system.mode == System.MODE.WAITING) {
+    system.startRecording();
+  } else if (system.mode == System.MODE.RECORD) {
+    system.stopRecording();
   } else if (
-    System.mode == System.MODE.PAUSE ||
-    System.mode == System.MODE.PLAY
+    system.mode == System.MODE.PAUSE ||
+    system.mode == System.MODE.PLAY
   ) {
-    System.startRecording();
+    system.startRecording();
   }
 });
 
 // WAITING -> play -> pause -> play
 const playBtn = document.querySelector(".playBtn");
 playBtn.addEventListener("click", () => {
-  if (System.mode == System.MODE.WAITING) {
-    System.startPlaying();
-  } else if (System.mode == System.MODE.PLAY) {
-    System.pause();
-  } else if (System.mode == System.MODE.PAUSE) {
-    System.resume();
+  if (system.mode == System.MODE.WAITING) {
+    system.startPlaying();
+  } else if (system.mode == System.MODE.PLAY) {
+    system.pause();
+  } else if (system.mode == System.MODE.PAUSE) {
+    system.resume();
   }
 });
 
 // play -> WAITING
 const replayBtn = document.querySelector(".replayBtn");
 replayBtn.addEventListener("click", () => {
-  if (System.mode == System.MODE.PAUSE) {
-    System.replay();
+  if (system.mode == System.MODE.PAUSE) {
+    system.replay();
   }
 });
 
+const songSelectBtn = document.querySelector(".songSelectBtn");
+songSelectBtn.addEventListener("click", () => {
+  system.backToSelect();
+});
+
+let system;
 let gameManager;
 let notePlayer;
 let recorder;
+let ytPlayer;
 let ui;
+let songLibrary;
+let hitSound;
+
+function preload() {
+  hitSound = loadSound("assets/hit.wav");
+}
 
 function setup() {
   let canvas = createCanvas(1000, 1000);
@@ -48,32 +61,32 @@ function setup() {
 
   gameManager = new GameManager();
   gameManager.setLevel(1, 20);
-  recorder = new Recorder();
-  notePlayer = new NotePlayer(gameManager);
-  ui = new UI(gameManager, notePlayer, recorder);
 
-  System.changeMode(System.MODE.SELECT);
-  // System.loadData(2);
+  recorder = new Recorder();
+  songLibrary = new SongLibrary();
+  ytPlayer = new YouTubePlayer();
+
+  notePlayer = new NotePlayer(gameManager);
+  ui = new UI(gameManager, notePlayer, recorder, songLibrary.songData);
+  system = new System(songLibrary, recorder, ytPlayer, gameManager, notePlayer);
 }
 
 function draw() {
   background(255);
   System.checkKeyReleased();
   ui.displayUI();
-  switch (System.mode) {
+  switch (system.mode) {
     case System.MODE.SELECT:
       ui.displaySelectUI();
       break;
     case System.MODE.PLAY:
       if (notePlayer.isPlayerEnd) {
-        System.gameEnd();
+        system.gameEnd();
       } else {
         ui.displayPlayUI();
       }
       playBtn.innerText = "일시중지";
       notePlayer.play();
-      YTplayer.playVideo();
-
       break;
     case System.MODE.WAITING:
       ui.displayWaitingUI();
@@ -90,23 +103,21 @@ function draw() {
       ui.displayPauseUI();
       playBtn.innerText = "재생하기";
       notePlayer.pause();
-      YTplayer.pauseVideo();
       break;
   }
 }
 
 function keyPressed() {
-  if (keyCode == 65 && System.mode == System.MODE.WAITING) {
-    System.startPlaying();
+  if (keyCode == 65 && system.mode == System.MODE.WAITING) {
+    system.startPlaying();
   }
-
-  if (keyCode == 32 && System.mode == System.MODE.PLAY) {
-    System.changeMode(System.MODE.PAUSE);
-  } else if (keyCode == 32 && System.mode == System.MODE.PAUSE) {
-    System.changeMode(System.MODE.PLAY);
+  if (keyCode == 32 && system.mode == System.MODE.PLAY) {
+    system.pause();
+  } else if (keyCode == 32 && system.mode == System.MODE.PAUSE) {
+    system.resume();
   }
-  if (keyCode == 82 && System.mode == System.MODE.PAUSE) {
-    System.replay();
+  if (keyCode == 82 && system.mode == System.MODE.PAUSE) {
+    system.replay();
   }
 }
 

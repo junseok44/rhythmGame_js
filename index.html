@@ -10,9 +10,6 @@
       .buttonContainer {
         display: flex;
         flex-direction: column;
-        /* position: absolute; */
-        /* top: 10px; */
-        /* right: 10px; */
         z-index: 1;
       }
       button {
@@ -50,8 +47,16 @@
         <button onkeydown="preventSpacebarClick(event);" class="replayBtn">
           다시 시작
         </button>
+        <button onkeydown="preventSpacebarClick(event);" class="songSelectBtn">
+          노래 선곡
+        </button>
       </div>
     </div>
+    <script>
+      function onYouTubeIframeAPIReady() {
+        ytPlayer.onYouTubeIframeAPIReady();
+      }
+    </script>
     <script>
       function preventSpacebarClick(event) {
         if (event.key === " " || event.keyCode === 32) {
@@ -65,6 +70,8 @@
     <script src="objects/RecordNote.js"></script>
     <script src="objects/Note.js"></script>
 
+    <script src="system/YouTubePlayer.js"></script>
+    <script src="system/SongLibrary.js"></script>
     <script src="system/GameManager.js"></script>
     <script src="system/LoadYTPlayer.js"></script>
     <script src="system/NotePlayer.js"></script>

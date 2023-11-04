@@ -6,6 +6,10 @@ class Recorder {
     this.timeLapse = new Date();
   }
 
+  getNoteData() {
+    return this.noteData;
+  }
+
   saveLocalStorage() {
     localStorage.setItem("noteData", JSON.stringify(this.noteData));
   }

@@ -3,13 +3,23 @@ const displayResult_delayed = Utils.delayDisplay(() => {
 }, 1000);
 
 const backToWaiting_delayed = Utils.callOneTime(() => {
-  YTplayer.stopVideo();
-  System.changeMode(System.MODE.WAITING);
+  gameManager.reset();
+  ytPlayer.stopVideo();
+  system.changeMode(System.MODE.WAITING);
 }, 3000);
 
 class System {
+  constructor(songLibrary, recorder, ytPlayer, gameManager, notePlayer) {
+    this.songLibrary = songLibrary;
+    this.mode = System.MODE.SELECT;
+    this.ytPlayer = ytPlayer;
+    this.recorder = recorder;
+    this.gameManager = gameManager;
+    this.notePlayer = notePlayer;
+    this.currentSong = null;
+  }
+
   static frameRate = 60;
-  static mode = "waiting";
   static MODE = {
     INTRO: "game_intro",
     SELECT: "select_song",
@@ -18,30 +28,6 @@ class System {
     PLAY: "play",
     PAUSE: "pause",
   };
-  static currentSong;
-
-  static changeMode(mode) {
-    switch (mode) {
-      case System.MODE.INTRO:
-        System.mode = System.MODE.INTRO;
-        break;
-      case System.MODE.SELECT:
-        System.mode = System.MODE.SELECT;
-        break;
-      case System.MODE.WAITING:
-        System.mode = System.MODE.WAITING;
-        break;
-      case System.MODE.RECORD:
-        System.mode = System.MODE.RECORD;
-        break;
-      case System.MODE.PLAY:
-        System.mode = System.MODE.PLAY;
-        break;
-      case System.MODE.PAUSE:
-        System.mode = System.MODE.PAUSE;
-        break;
-    }
-  }
 
   static controllerPosition = {
     q: { x: 350, y: 950 },
@@ -84,57 +70,84 @@ class System {
     }
   }
 
-  static startRecording() {
-    if (!System.currentSong) return;
-    System.changeMode(System.MODE.RECORD);
-    recorder.startRecord();
-    YTplayer.playVideo();
+  changeMode(mode) {
+    switch (mode) {
+      case System.MODE.INTRO:
+        this.mode = System.MODE.INTRO;
+        break;
+      case System.MODE.SELECT:
+        this.mode = System.MODE.SELECT;
+        break;
+      case System.MODE.WAITING:
+        this.mode = System.MODE.WAITING;
+        break;
+      case System.MODE.RECORD:
+        this.mode = System.MODE.RECORD;
+        break;
+      case System.MODE.PLAY:
+        this.mode = System.MODE.PLAY;
+        break;
+      case System.MODE.PAUSE:
+        this.mode = System.MODE.PAUSE;
+        break;
+    }
   }
 
-  static stopRecording() {
-    YTplayer.stopVideo();
-    System.changeMode(System.MODE.WAITING);
-    recorder.saveLocalStorage();
+  startRecording() {
+    if (!system.currentSong) return;
+    this.changeMode(System.MODE.RECORD);
+    this.recorder.startRecord();
+    this.ytPlayer.stopVideo(0);
+    this.ytPlayer.startVideo();
   }
 
-  static resume() {
-    System.changeMode(System.MODE.PLAY);
+  stopRecording() {
+    this.ytPlayer.stopVideo();
+    this.changeMode(System.MODE.WAITING);
+    console.log(this.recorder.noteData);
+    this.recorder.saveLocalStorage();
   }
 
-  static loadData(id) {
-    let song = songData.filter((song) => song.id === id);
-    if (song.length == 0) return;
-    System.currentSong = song[0];
-    notePlayer.setNotes(System.currentSong.noteData);
-    videoId = System.currentSong.movieID;
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  resume() {
+    this.ytPlayer.startVideo();
+    this.changeMode(System.MODE.PLAY);
   }
 
-  static startPlaying() {
-    // if (localStorage.getItem("noteData")) {
-    //   recorder.noteData = JSON.parse(localStorage.getItem("noteData"));
-    // }
-    // notePlayer.setNotes(recorder.noteData);
-
-    // 예를 들어 mongoDB로부터 데이터를 받았어. 그럼 어떻게 하는데?
-    System.loadData(System.currentSong.id);
-    gameManager.reset();
-    System.changeMode(System.MODE.PLAY);
+  setCurrentSong(id) {
+    this.currentSong = this.songLibrary.findSong(id);
   }
 
-  static gameEnd() {
-    gameManager.reset();
+  loadVideo() {
+    this.ytPlayer.changeVideo(this.currentSong.movieID);
+  }
+
+  backToSelect() {
+    this.ytPlayer.stopVideo();
+    system.changeMode(System.MODE.SELECT);
+  }
+
+  startPlaying() {
+    if (!this.currentSong) return;
+    this.gameManager.reset();
+    this.notePlayer.setNotes(this.currentSong.noteData);
+    this.ytPlayer.stopVideo(0);
+    this.ytPlayer.startVideo();
+    this.changeMode(System.MODE.PLAY);
+  }
+
+  gameEnd() {
     displayResult_delayed();
     backToWaiting_delayed();
   }
 
-  static pause() {
-    System.changeMode(System.MODE.PAUSE);
+  pause() {
+    this.ytPlayer.pauseVideo();
+    this.changeMode(System.MODE.PAUSE);
   }
 
-  static replay() {
-    YTplayer.stopVideo(0);
-    gameManager.reset();
-    System.startPlaying();
+  replay() {
+    this.ytPlayer.stopVideo(0);
+    this.gameManager.reset();
+    this.startPlaying();
   }
 }

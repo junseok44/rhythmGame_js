@@ -126,6 +126,15 @@ class UI {
   displayPlayUI() {
     this.displayScore();
     this.displayCombo();
+    push();
+    textSize(30);
+    fill(0);
+    text(
+      "노래 싱크가 안맞을때는 스페이스바 + r키를 눌러 재시작하세요",
+      width / 2,
+      100
+    );
+    pop();
     for (let i = 0; i < this.controller.length; i++) {
       this.controller[i].draw();
     }

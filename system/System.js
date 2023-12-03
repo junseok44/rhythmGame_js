@@ -129,9 +129,9 @@ class System {
   startPlaying() {
     if (!this.currentSong) return;
     this.gameManager.reset();
-    this.notePlayer.setNotes(this.currentSong.noteData);
     this.ytPlayer.stopVideo(0);
     this.ytPlayer.startVideo();
+    this.notePlayer.setNotes(this.currentSong.noteData);
     this.changeMode(System.MODE.PLAY);
   }
 

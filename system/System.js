@@ -30,10 +30,10 @@ class System {
   };
 
   static controllerPosition = {
-    q: { x: 350, y: 950 },
-    w: { x: 450, y: 950 },
-    e: { x: 550, y: 950 },
-    r: { x: 650, y: 950 },
+    q: { x: 250, y: 750 },
+    w: { x: 350, y: 750 },
+    e: { x: 450, y: 750 },
+    r: { x: 550, y: 750 },
   };
 
   static keyCodeMap = {

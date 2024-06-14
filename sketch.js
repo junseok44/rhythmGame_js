@@ -51,7 +51,7 @@ function preload() {
 }
 
 function setup() {
-  let canvas = createCanvas(1000, 1000);
+  let canvas = createCanvas(800, 800);
   canvas.parent("myCanvas");
 
   stroke(0);

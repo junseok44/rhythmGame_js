@@ -1,8 +1,8 @@
 class YouTubePlayer {
   constructor() {
     this.videoId = null;
-    this.width = 1000;
-    this.height = 1000;
+    this.width = 800;
+    this.height = 800;
     this.YTplayer = null;
 
     const tag = document.createElement("script");
